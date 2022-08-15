@@ -1,6 +1,27 @@
-const module1 = require('./module1');
+const fs = require('fs/promises');
+const path = require('path');
 
-require('./files')
+const sortByFolder = async (dir, gen, newPath) => {
+    try {
+        const folderPath = path.join(__dirname, dir);
+        const files = await fs.readdir(folderPath);
 
-const user = module1.createUser('Nate', 21);
-user.sayHello()
+        for (const file of files) {
+
+            const pathToFile = path.join(folderPath, file);
+
+            const buffer = await fs.readFile(pathToFile);
+
+            const user = JSON.parse(buffer.toString());
+
+            if (user.gender !== gen) {
+              await  fs.rename(pathToFile, path.join(__dirname, newPath, file))
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+sortByFolder('boys', 'male', 'girls')
+sortByFolder('girls', 'female', 'boys')
